@@ -1,5 +1,4 @@
 import sys
-from typing import List
 
 from fastapi import FastAPI
 from pymongo import MongoClient
@@ -17,10 +16,10 @@ async def main():
     return {"message": "Nasa Exoplanet Archive is on!"}
 
 
-@app.get("/planets", tags=["planets"], response_model=Planet)
+@app.get("/planets", tags=["planets"])
 async def main():
-    """Get all planets without filters"""
-    response = []
-    for element in planets_collection.find({}).limit(1):
-        response.append(element)
-    return response[0]
+    """Get all planets paginated without filters"""
+    planets = []
+    for planet in planets_collection.find({}).limit(10):
+        planets.append(planet_helper(planet))
+    return planets
