@@ -3,16 +3,15 @@ from bson import ObjectId
 
 
 class Planet(BaseModel):
-    pl_name: str = Field(alias="PlanetName")
-    sy_snum: str = Field(alias="NumberOfStars")
-    sy_pnum: str = Field(alias="NumberOfPlanets")
-    disc_year: str = Field(alias="DiscoveryYear")
-    discoverymethod: str = Field(alias="DiscoveryMethod")
-    disc_facility: str = Field(alias="DiscoverFacility")
-    pl_orbper: str = Field(alias="OrbitalPeriod")
-    pl_rade: str = Field(alias="PlanetEarthRadius")
-    pl_bmasse: str = Field(alias="PlanetEarthMass")
-
+    pl_name: str = Field(alias="planet_name")
+    sy_snum: str = Field(alias="number_of_stars")
+    sy_pnum: str = Field(alias="number_of_planets")
+    disc_year: str = Field(alias="discovery_year")
+    discoverymethod: str = Field(alias="discovery_method")
+    disc_facility: str = Field(alias="discovery_facility")
+    pl_orbper: str = Field(alias="orbital_period")
+    pl_rade: str = Field(alias="planet_earth_radius")
+    pl_bmasse: str = Field(alias="planet_earth_mass")
 
 
 def planet_helper(planet) -> dict:
@@ -27,4 +26,12 @@ def planet_helper(planet) -> dict:
         "orbital_period": planet["pl_orbper"],
         "planet_earth_radius": planet["pl_rade"],
         "planet_earth_mass": planet["pl_bmasse"]
+    }
+
+
+def ResponseModel(data, code, message):
+    return {
+        "code": code,
+        "message": message,
+        "data": data,
     }

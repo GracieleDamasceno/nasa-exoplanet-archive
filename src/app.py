@@ -17,9 +17,10 @@ async def main():
 
 
 @app.get("/planets", tags=["planets"])
-async def main():
+async def get_planets_paginated_without_filters(size: int = 10, page_num: int = 1):
     """Get all planets paginated without filters"""
     planets = []
-    for planet in planets_collection.find({}).limit(10):
+    skips = size * (page_num - 1)
+    for planet in planets_collection.find({}).skip(skips).limit(size):
         planets.append(planet_helper(planet))
-    return planets
+    return ResponseModel(planets, 200, "Planets successfully retrieved")
