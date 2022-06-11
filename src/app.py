@@ -1,19 +1,18 @@
-import sys
-
 from fastapi import FastAPI
-from pymongo import MongoClient
 from planets_model import *
-
-sys.path.append("server")
-client = MongoClient("localhost", 27017)
-db = client["nasa-exoplanet-archive"]
-planets_collection = db["planets"]
+from sync_database import *
+from database import *
 app = FastAPI()
 
 
-@app.get("/", tags=["main"])
-async def main():
-    return {"message": "Nasa Exoplanet Archive is on!"}
+@app.get("/sync-database", tags=["settings"])
+async def sync_local_database_with_exoplanetarchive_database():
+    """Sync local database with exo planetarchive database"""
+    success, message = sync_database()
+    if success:
+        return ResponseModel("", 200, message)
+    else:
+        return ResponseModel("", 500, message)
 
 
 @app.get("/planets", tags=["planets"])
