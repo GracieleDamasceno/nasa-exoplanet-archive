@@ -12,6 +12,7 @@ class Planet(BaseModel):
     pl_orbper: str = Field(alias="orbital_period")
     pl_rade: str = Field(alias="planet_earth_radius")
     pl_bmasse: str = Field(alias="planet_earth_mass")
+    link: str
 
 
 def planet_helper(planet) -> dict:
@@ -25,7 +26,8 @@ def planet_helper(planet) -> dict:
         "discovery_facility": planet["disc_facility"],
         "orbital_period": planet["pl_orbper"],
         "planet_earth_radius": planet["pl_rade"],
-        "planet_earth_mass": planet["pl_bmasse"]
+        "planet_earth_mass": planet["pl_bmasse"],
+        "link": planet["link"]
     }
 
 
