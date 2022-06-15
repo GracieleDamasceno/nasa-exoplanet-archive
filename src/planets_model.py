@@ -31,9 +31,10 @@ def planet_helper(planet) -> dict:
     }
 
 
-def ResponseModel(data, code, message):
+def ResponseModel(data, code, message, total):
     return {
         "code": code,
         "message": message,
         "data": data,
+        "total_elements": total
     }
