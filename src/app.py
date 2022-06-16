@@ -25,20 +25,27 @@ async def get_planets_paginated_with_filters(size: int = 10, page_num: int = 1,
                                              discovery_facility: Union[str, None] = None,
                                              discovery_year: Union[str, None] = None):
     """Get all planets paginated with filters"""
-    query_filter = []
-    if planet_name is not None:
-        query_filter.append({"pl_name": {"$regex": re.compile(planet_name, re.IGNORECASE)}})
-    if discovery_method is not None:
-        query_filter.append({"discoverymethod": re.compile(discovery_method, re.IGNORECASE)})
-    if discovery_facility is not None:
-        query_filter.append({"disc_facility": re.compile(discovery_facility, re.IGNORECASE)})
-    if discovery_year is not None:
-        query_filter.append({"disc_year": int(discovery_year)})
+    try:
+        query_filter = []
+        if planet_name is not None:
+            query_filter.append({"pl_name": {"$regex": re.compile(planet_name, re.IGNORECASE)}})
+        if discovery_method is not None:
+            query_filter.append({"discoverymethod": re.compile(discovery_method, re.IGNORECASE)})
+        if discovery_facility is not None:
+            query_filter.append({"disc_facility": re.compile(discovery_facility, re.IGNORECASE)})
+        if discovery_year is not None:
+            query_filter.append({"disc_year": int(discovery_year)})
 
-    condition = {"$and": query_filter}
-    planets = []
-    skips = size * (page_num - 1)
-    count = planets_collection.estimated_document_count({})
-    for planet in planets_collection.find(condition).skip(skips).limit(size).sort("disc_year", -1):
-        planets.append(planet_helper(planet))
-    return ResponseModel(planets, 200, "Planets successfully retrieved", count)
+        if query_filter:
+            condition = {"$and": query_filter}
+        else:
+            condition = {}
+
+        planets = []
+        skips = size * (page_num - 1)
+        count = len(list(planets_collection.find(condition)))
+        for planet in planets_collection.find(condition).skip(skips).limit(size).sort("disc_year", -1):
+            planets.append(planet_helper(planet))
+        return ResponseModel(planets, 200, "Planets successfully retrieved", count)
+    except Exception as exception:
+        return ResponseModel("", 500, "An error occurred while fetching data: "+str(exception), 1)
