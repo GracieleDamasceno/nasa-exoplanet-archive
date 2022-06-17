@@ -13,9 +13,9 @@ async def sync_local_database_with_exoplanet_archive_database():
     """Sync local database with exo-planet archive database"""
     success, message = sync_database()
     if success:
-        return ResponseModel("", 200, message, 1)
+        return ResponseModel("", 200, message, 0)
     else:
-        return ResponseModel("", 500, message, 1)
+        return ResponseModel("", 500, message, 0)
 
 
 @app.get("/planets", tags=["planets"])
@@ -23,7 +23,8 @@ async def get_planets_paginated_with_filters(size: int = 10, page_num: int = 1,
                                              planet_name: Union[str, None] = None,
                                              discovery_method: Union[str, None] = None,
                                              discovery_facility: Union[str, None] = None,
-                                             discovery_year: Union[str, None] = None):
+                                             discovery_year: Union[str, None] = None,
+                                             ordered: str = "desc"):
     """Get all planets paginated with filters"""
     try:
         query_filter = []
@@ -41,10 +42,17 @@ async def get_planets_paginated_with_filters(size: int = 10, page_num: int = 1,
         else:
             condition = {}
 
+        if ordered == "desc":
+            ordered = -1
+        elif ordered == "asc":
+            ordered = 1
+        else:
+            return ResponseModel("", 500, "An error occurred while fetching data: key order must be asc (for ascending) or desc (for descending)", 0)
+
         planets = []
         skips = size * (page_num - 1)
         count = len(list(planets_collection.find(condition)))
-        for planet in planets_collection.find(condition).skip(skips).limit(size).sort("disc_year", -1):
+        for planet in planets_collection.find(condition).skip(skips).limit(size).sort("disc_year", ordered):
             planets.append(planet_helper(planet))
         return ResponseModel(planets, 200, "Planets successfully retrieved", count)
     except Exception as exception:
