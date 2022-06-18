@@ -19,12 +19,11 @@ async def sync_local_database_with_exoplanet_archive_database():
 
 
 @app.get("/planets", tags=["planets"])
-async def get_planets_paginated_with_filters(size: int = 10, page_num: int = 1,
-                                             planet_name: Union[str, None] = None,
+async def get_planets_paginated_with_filters(planet_name: Union[str, None] = None,
                                              discovery_method: Union[str, None] = None,
                                              discovery_facility: Union[str, None] = None,
                                              discovery_year: Union[str, None] = None,
-                                             ordered: str = "desc"):
+                                             size: int = 10, page_num: int = 1, ordered: str = "desc"):
     """Get all planets paginated with filters"""
     try:
         query_filter = []
@@ -56,4 +55,4 @@ async def get_planets_paginated_with_filters(size: int = 10, page_num: int = 1,
             planets.append(planet_helper(planet))
         return ResponseModel(planets, 200, "Planets successfully retrieved", count)
     except Exception as exception:
-        return ResponseModel("", 500, "An error occurred while fetching data: "+str(exception), 1)
+        return ResponseModel("", 500, "An error occurred while fetching data: " + str(exception), 1)
