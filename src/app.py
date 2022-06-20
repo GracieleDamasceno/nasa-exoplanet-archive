@@ -56,3 +56,30 @@ async def get_planets_paginated_with_filters(planet_name: Union[str, None] = Non
         return ResponseModel(planets, 200, "Planets successfully retrieved", count)
     except Exception as exception:
         return ResponseModel("", 500, "An error occurred while fetching data: " + str(exception), 1)
+
+
+@app.get("/planets/graphs", tags=["planets"])
+async def get_planets_information_plotted_in_graphs(planet_name: Union[str, None] = None,
+                                             discovery_method: Union[str, None] = None,
+                                             discovery_facility: Union[str, None] = None,
+                                             discovery_year: Union[str, None] = None):
+    """Get planets information and statistics plotted in graphs"""
+
+    query_filter = []
+    if planet_name is not None:
+        query_filter.append({"pl_name": {"$regex": re.compile(planet_name, re.IGNORECASE)}})
+    if discovery_method is not None:
+        query_filter.append({"discoverymethod": re.compile(discovery_method, re.IGNORECASE)})
+    if discovery_facility is not None:
+        query_filter.append({"disc_facility": re.compile(discovery_facility, re.IGNORECASE)})
+    if discovery_year is not None:
+        query_filter.append({"disc_year": int(discovery_year)})
+
+    if query_filter:
+        condition = {"$and": query_filter}
+    else:
+        condition = {}
+
+    # logic to plot data here
+    planets_collection.find(condition)
+
