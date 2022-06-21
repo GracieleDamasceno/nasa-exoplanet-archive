@@ -3,6 +3,8 @@ from planets_model import *
 from sync_database import *
 from database import *
 from typing import Union
+import pandas as pd
+import matplotlib.pyplot as plt
 import re
 
 app = FastAPI()
@@ -46,7 +48,9 @@ async def get_planets_paginated_with_filters(planet_name: Union[str, None] = Non
         elif ordered == "asc":
             ordered = 1
         else:
-            return ResponseModel("", 500, "An error occurred while fetching data: key order must be asc (for ascending) or desc (for descending)", 0)
+            return ResponseModel("", 500,
+                                 "An error occurred while fetching data: key order must be asc (for ascending) or desc (for descending)",
+                                 0)
 
         planets = []
         skips = size * (page_num - 1)
@@ -58,28 +62,13 @@ async def get_planets_paginated_with_filters(planet_name: Union[str, None] = Non
         return ResponseModel("", 500, "An error occurred while fetching data: " + str(exception), 1)
 
 
-@app.get("/planets/graphs", tags=["planets"])
-async def get_planets_information_plotted_in_graphs(planet_name: Union[str, None] = None,
-                                             discovery_method: Union[str, None] = None,
-                                             discovery_facility: Union[str, None] = None,
-                                             discovery_year: Union[str, None] = None):
-    """Get planets information and statistics plotted in graphs"""
-
-    query_filter = []
-    if planet_name is not None:
-        query_filter.append({"pl_name": {"$regex": re.compile(planet_name, re.IGNORECASE)}})
-    if discovery_method is not None:
-        query_filter.append({"discoverymethod": re.compile(discovery_method, re.IGNORECASE)})
-    if discovery_facility is not None:
-        query_filter.append({"disc_facility": re.compile(discovery_facility, re.IGNORECASE)})
-    if discovery_year is not None:
-        query_filter.append({"disc_year": int(discovery_year)})
-
-    if query_filter:
-        condition = {"$and": query_filter}
-    else:
-        condition = {}
-
-    # logic to plot data here
-    planets_collection.find(condition)
+@app.get("/planets/graphs/count-by-year", tags=["planets"])
+async def get_planets_count_by_year_plotted_in_graph():
+    """Get number of discovered planets by year plotted in a graph"""
+    mongo_data = list(planets_collection.aggregate([{
+        "$group": {
+            "_id": "$disc_year",
+            "count": {"$sum": 1}
+        }
+    }]))
 
