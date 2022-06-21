@@ -1,8 +1,10 @@
+import pymongo
 from fastapi import FastAPI
 from planets_model import *
 from sync_database import *
 from database import *
 from typing import Union
+from fastapi.responses import FileResponse
 import pandas as pd
 import matplotlib.pyplot as plt
 import re
@@ -62,13 +64,25 @@ async def get_planets_paginated_with_filters(planet_name: Union[str, None] = Non
         return ResponseModel("", 500, "An error occurred while fetching data: " + str(exception), 1)
 
 
-@app.get("/planets/graphs/count-by-year", tags=["planets"])
+@app.get("/planets/graphs/year", tags=["planets"])
 async def get_planets_count_by_year_plotted_in_graph():
     """Get number of discovered planets by year plotted in a graph"""
-    mongo_data = list(planets_collection.aggregate([{
+    group_by_year = {
         "$group": {
-            "_id": "$disc_year",
-            "count": {"$sum": 1}
+                "_id": "$disc_year",
+                "planets_discovered": {"$sum": 1}
         }
-    }]))
+    }
 
+    sort_by_year = {
+        "$sort": {"_id": pymongo.ASCENDING}
+    }
+
+    mongo_data = list(planets_collection.aggregate([group_by_year, sort_by_year]))
+
+    data = pd.DataFrame(mongo_data)
+    data.sort_values(by='_id', ascending=True)
+    data.plot(kind='bar', x='_id', y='planets_discovered')
+    plt.title("Number of planets discovered by year")
+    plt.savefig('planets_by_year.png')
+    return FileResponse('planets_by_year.png')
