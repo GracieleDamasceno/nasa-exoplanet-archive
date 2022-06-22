@@ -5,6 +5,7 @@ from sync_database import *
 from database import *
 from typing import Union
 from fastapi.responses import FileResponse
+from matplotlib.ticker import ScalarFormatter
 import pandas as pd
 import matplotlib.pyplot as plt
 import re
@@ -64,13 +65,13 @@ async def get_planets_paginated_with_filters(planet_name: Union[str, None] = Non
         return ResponseModel("", 500, "An error occurred while fetching data: " + str(exception), 1)
 
 
-@app.get("/planets/graphs/year", tags=["planets"])
-async def get_planets_count_by_year_plotted_in_graph():
+@app.get("/plot/planet/discovery-year", tags=["planets"])
+async def get_number_of_planets_discovered_by_year_plotted_in_graph():
     """Get number of discovered planets by year plotted in a graph"""
     group_by_year = {
         "$group": {
-                "_id": "$disc_year",
-                "planets_discovered": {"$sum": 1}
+            "_id": "$disc_year",
+            "planets_discovered": {"$sum": 1}
         }
     }
 
@@ -83,6 +84,42 @@ async def get_planets_count_by_year_plotted_in_graph():
     data = pd.DataFrame(mongo_data)
     data.sort_values(by='_id', ascending=True)
     data.plot(kind='bar', x='_id', y='planets_discovered')
+    plt.yscale('log')
+    plt.xlabel('Discovery Year')
+    plt.ylabel('Planets Discovered')
     plt.title("Number of planets discovered by year")
-    plt.savefig('planets_by_year.png')
+    ax = plt.gca()
+    for axis in [ax.yaxis]:
+        formatter = ScalarFormatter()
+        formatter.set_scientific(False)
+        axis.set_major_formatter(formatter)
+    plt.savefig('planets_by_year.png', bbox_inches="tight")
+    return FileResponse('planets_by_year.png')
+
+
+@app.get("/plot/planet/discovery-method", tags=["planets"])
+async def get_number_of_planets_discovered_by_discovery_method_plotted_in_graph():
+    """Get number of discovered planets by year plotted in a graph"""
+    group_by_year = {
+        "$group": {
+            "_id": "$discoverymethod",
+            "planets_discovered": {"$sum": 1}
+        }
+    }
+
+    mongo_data = list(planets_collection.aggregate([group_by_year]))
+
+    data = pd.DataFrame(mongo_data)
+    data.sort_values(by='_id', ascending=True)
+    data.plot.barh(x='_id', y='planets_discovered')
+    plt.xscale('log')
+    plt.xlabel('Discovery Method')
+    plt.ylabel('Planets Discovered')
+    plt.title("Number of planets discovered by discovery method")
+    ax = plt.gca()
+    for axis in [ax.xaxis]:
+        formatter = ScalarFormatter()
+        formatter.set_scientific(False)
+        axis.set_major_formatter(formatter)
+    plt.savefig('planets_by_year.png', bbox_inches="tight")
     return FileResponse('planets_by_year.png')
