@@ -93,7 +93,7 @@ async def get_number_of_planets_discovered_by_year_plotted_in_graph():
         formatter = ScalarFormatter()
         formatter.set_scientific(False)
         axis.set_major_formatter(formatter)
-    plt.savefig('planets_by_year.png', bbox_inches="tight")
+    plt.savefig('planets_by_year.png', bbox_inches="tight", dpi=200)
     return FileResponse('planets_by_year.png')
 
 
@@ -121,5 +121,39 @@ async def get_number_of_planets_discovered_by_discovery_method_plotted_in_graph(
         formatter = ScalarFormatter()
         formatter.set_scientific(False)
         axis.set_major_formatter(formatter)
-    plt.savefig('planets_by_year.png', bbox_inches="tight")
+    plt.savefig('planets_by_year.png', bbox_inches="tight", dpi=200)
+    return FileResponse('planets_by_year.png')
+
+
+@app.get("/plot/planet/discovery-facility", tags=["planets"])
+async def get_number_of_planets_discovered_by_discovery_facility_plotted_in_graph():
+    """Get number of discovered planets by year plotted in a graph"""
+    group_by_year = {
+        "$group": {
+            "_id": "$disc_facility",
+            "planets_discovered": {"$sum": 1}
+        }
+    }
+    sort_by_facility = {
+        "$sort": {"planets_discovered": pymongo.ASCENDING}
+    }
+
+    mongo_data = list(planets_collection.aggregate([group_by_year, sort_by_facility]))
+
+    data = pd.DataFrame(mongo_data)
+    data.sort_values(by='_id', ascending=True)
+    data.plot.barh(x='_id', y='planets_discovered', fontsize=6)
+    plt.xscale('log')
+    plt.ylabel('Discovery Facility', fontsize=6)
+    plt.xlabel('Planets Discovered', fontsize=6)
+    plt.title("Number of planets discovered by discovery facility", fontsize=6)
+    ax = plt.gca()
+
+    for axis in [ax.xaxis]:
+        formatter = ScalarFormatter()
+        formatter.set_scientific(False)
+        axis.set_major_formatter(formatter)
+
+    plt.tick_params(axis='y', which='major', labelsize=4)
+    plt.savefig('planets_by_year.png', bbox_inches="tight", dpi=400)
     return FileResponse('planets_by_year.png')
