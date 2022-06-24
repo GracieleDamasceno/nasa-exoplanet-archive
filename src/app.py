@@ -16,14 +16,14 @@ app = FastAPI()
 @app.get("/sync-database", tags=["settings"])
 async def sync_local_database_with_exoplanet_archive_database():
     """Sync local database with exo-planet archive database"""
-    success, message = sync_database()
+    success, message, total_elements = sync_database()
     if success:
-        return ResponseModel("", 200, message, 0)
+        return ResponseModel("", 200, message, total_elements)
     else:
         return ResponseModel("", 500, message, 0)
 
 
-@app.get("/planets", tags=["planets"])
+@app.get("/planets", tags=["data"])
 async def get_planets_paginated_with_filters(planet_name: Union[str, None] = None,
                                              discovery_method: Union[str, None] = None,
                                              discovery_facility: Union[str, None] = None,
@@ -65,7 +65,7 @@ async def get_planets_paginated_with_filters(planet_name: Union[str, None] = Non
         return ResponseModel("", 500, "An error occurred while fetching data: " + str(exception), 1)
 
 
-@app.get("/plot/planet/discovery-year", tags=["planets"])
+@app.get("/plot/planet/discovery-year", tags=["graph"])
 async def get_number_of_planets_discovered_by_year_plotted_in_graph():
     """Get number of discovered planets by year plotted in a graph"""
     group_by_year = {
@@ -97,17 +97,17 @@ async def get_number_of_planets_discovered_by_year_plotted_in_graph():
     return FileResponse('planets_by_year.png')
 
 
-@app.get("/plot/planet/discovery-method", tags=["planets"])
+@app.get("/plot/planet/discovery-method", tags=["graph"])
 async def get_number_of_planets_discovered_by_discovery_method_plotted_in_graph():
-    """Get number of discovered planets by year plotted in a graph"""
-    group_by_year = {
+    """Get number of discovered planets by discovery method plotted in a graph"""
+    group_by_discovery_method = {
         "$group": {
-            "_id": "$discoverymethod",
+            "_id": "$sy_snum",
             "planets_discovered": {"$sum": 1}
         }
     }
 
-    mongo_data = list(planets_collection.aggregate([group_by_year]))
+    mongo_data = list(planets_collection.aggregate([group_by_discovery_method]))
 
     data = pd.DataFrame(mongo_data)
     data.sort_values(by='_id', ascending=True)
@@ -125,10 +125,10 @@ async def get_number_of_planets_discovered_by_discovery_method_plotted_in_graph(
     return FileResponse('planets_by_year.png')
 
 
-@app.get("/plot/planet/discovery-facility", tags=["planets"])
+@app.get("/plot/planet/discovery-facility", tags=["graph"])
 async def get_number_of_planets_discovered_by_discovery_facility_plotted_in_graph():
-    """Get number of discovered planets by year plotted in a graph"""
-    group_by_year = {
+    """Get number of discovered planets by facility plotted in a graph"""
+    group_by_facility = {
         "$group": {
             "_id": "$disc_facility",
             "planets_discovered": {"$sum": 1}
@@ -138,7 +138,7 @@ async def get_number_of_planets_discovered_by_discovery_facility_plotted_in_grap
         "$sort": {"planets_discovered": pymongo.ASCENDING}
     }
 
-    mongo_data = list(planets_collection.aggregate([group_by_year, sort_by_facility]))
+    mongo_data = list(planets_collection.aggregate([group_by_facility, sort_by_facility]))
 
     data = pd.DataFrame(mongo_data)
     data.sort_values(by='_id', ascending=True)
@@ -156,4 +156,32 @@ async def get_number_of_planets_discovered_by_discovery_facility_plotted_in_grap
 
     plt.tick_params(axis='y', which='major', labelsize=4)
     plt.savefig('planets_by_year.png', bbox_inches="tight", dpi=400)
+    return FileResponse('planets_by_year.png')
+
+
+@app.get("/plot/planet/discovery-locale", tags=["graph"])
+async def get_planets_discovered_by_discovery_locale_plotted_in_graph():
+    """Get number of discovered planets by locale plotted in a graph"""
+    group_by_locale = {
+        "$group": {
+            "_id": "$disc_locale",
+            "planets_discovered": {"$sum": 1}
+        }
+    }
+
+    mongo_data = list(planets_collection.aggregate([group_by_locale]))
+
+    data = pd.DataFrame(mongo_data)
+    data.sort_values(by='_id', ascending=True)
+    data.plot.barh(x='_id', y='planets_discovered')
+    plt.xscale('log')
+    plt.xlabel('Planets Discovered')
+    plt.ylabel('Discovery Locale')
+    plt.title("Number of planets discovered by Locale")
+    ax = plt.gca()
+    for axis in [ax.xaxis]:
+        formatter = ScalarFormatter()
+        formatter.set_scientific(False)
+        axis.set_major_formatter(formatter)
+    plt.savefig('planets_by_year.png', bbox_inches="tight", dpi=200)
     return FileResponse('planets_by_year.png')

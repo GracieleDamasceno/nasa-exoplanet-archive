@@ -24,6 +24,8 @@ def planet_helper(planet) -> dict:
         "discovery_year": planet["disc_year"],
         "discovery_method": planet["discoverymethod"],
         "discovery_facility": planet["disc_facility"],
+        "discovery_locale": planet["disc_locale"],
+        "discovery_telescope": planet["disc_telescope"],
         "orbital_period": planet["pl_orbper"],
         "planet_earth_radius": planet["pl_rade"],
         "planet_earth_mass": planet["pl_bmasse"],
