@@ -10,7 +10,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import re
 
-app = FastAPI()
+
+app = FastAPI(
+    title="Nasa Exoplanet Archive",
+    description="API that retrieves, saves, displays and plots data from nasa's exoplanet archive.",
+    version="0.0.1",
+    license_info={
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+    },
+)
 
 
 @app.get("/sync-database", tags=["settings"])
@@ -65,9 +74,9 @@ async def get_planets_paginated_with_filters(planet_name: Union[str, None] = Non
         return ResponseModel("", 500, "An error occurred while fetching data: " + str(exception), 1)
 
 
-@app.get("/plot/planet/discovery-year", tags=["graph"])
-async def get_number_of_planets_discovered_by_year_plotted_in_graph():
-    """Get number of discovered planets by year plotted in a graph"""
+@app.get("/plot/planet/discovery-year", tags=["charts"])
+async def get_number_of_planets_discovered_by_year_plotted_in_chart():
+    """Get number of discovered planets by year plotted in a chart"""
     group_by_year = {
         "$group": {
             "_id": "$disc_year",
@@ -97,12 +106,12 @@ async def get_number_of_planets_discovered_by_year_plotted_in_graph():
     return FileResponse('planets_by_year.png')
 
 
-@app.get("/plot/planet/discovery-method", tags=["graph"])
-async def get_number_of_planets_discovered_by_discovery_method_plotted_in_graph():
-    """Get number of discovered planets by discovery method plotted in a graph"""
+@app.get("/plot/planet/discovery-method", tags=["charts"])
+async def get_number_of_planets_discovered_by_discovery_method_plotted_in_chart():
+    """Get number of discovered planets by discovery method plotted in a chart"""
     group_by_discovery_method = {
         "$group": {
-            "_id": "$sy_snum",
+            "_id": "$discoverymethod",
             "planets_discovered": {"$sum": 1}
         }
     }
@@ -125,9 +134,9 @@ async def get_number_of_planets_discovered_by_discovery_method_plotted_in_graph(
     return FileResponse('planets_by_year.png')
 
 
-@app.get("/plot/planet/discovery-facility", tags=["graph"])
-async def get_number_of_planets_discovered_by_discovery_facility_plotted_in_graph():
-    """Get number of discovered planets by facility plotted in a graph"""
+@app.get("/plot/planet/discovery-facility", tags=["charts"])
+async def get_number_of_planets_discovered_by_discovery_facility_plotted_in_chart():
+    """Get number of discovered planets by facility plotted in a chart"""
     group_by_facility = {
         "$group": {
             "_id": "$disc_facility",
@@ -159,9 +168,9 @@ async def get_number_of_planets_discovered_by_discovery_facility_plotted_in_grap
     return FileResponse('planets_by_year.png')
 
 
-@app.get("/plot/planet/discovery-locale", tags=["graph"])
-async def get_planets_discovered_by_discovery_locale_plotted_in_graph():
-    """Get number of discovered planets by locale plotted in a graph"""
+@app.get("/plot/planet/discovery-locale", tags=["charts"])
+async def get_planets_discovered_by_discovery_locale_plotted_in_chart():
+    """Get number of discovered planets by locale plotted in a chart"""
     group_by_locale = {
         "$group": {
             "_id": "$disc_locale",
