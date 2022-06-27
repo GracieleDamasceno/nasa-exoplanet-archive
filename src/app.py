@@ -194,3 +194,31 @@ async def get_planets_discovered_by_discovery_locale_plotted_in_chart():
         axis.set_major_formatter(formatter)
     plt.savefig('planets_by_year.png', bbox_inches="tight", dpi=200)
     return FileResponse('planets_by_year.png')
+
+
+@app.get("/plot/planet/disc_telescope", tags=["charts"])
+async def get_planets_discovered_by_discovery_telescope_plotted_in_chart():
+    """Get number of discovered planets by telescope plotted in a chart"""
+    group_by_telescope = {
+        "$group": {
+            "_id": "$disc_telescope",
+            "planets_discovered": {"$sum": 1}
+        }
+    }
+
+    mongo_data = list(planets_collection.aggregate([group_by_telescope]))
+
+    data = pd.DataFrame(mongo_data)
+    data.sort_values(by='_id', ascending=True)
+    data.plot.barh(x='_id', y='planets_discovered')
+    plt.xscale('log')
+    plt.xlabel('Planets Discovered')
+    plt.ylabel('Discovery Telescope')
+    plt.title("Number of planets discovered by Telescope")
+    ax = plt.gca()
+    for axis in [ax.xaxis]:
+        formatter = ScalarFormatter()
+        formatter.set_scientific(False)
+        axis.set_major_formatter(formatter)
+    plt.savefig('planets_by_year.png', bbox_inches="tight", dpi=200)
+    return FileResponse('planets_by_year.png')
