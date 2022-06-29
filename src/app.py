@@ -196,7 +196,7 @@ async def get_planets_discovered_by_discovery_locale_plotted_in_chart():
     return FileResponse('planets_by_year.png')
 
 
-@app.get("/plot/planet/disc_telescope", tags=["charts"])
+@app.get("/plot/planet/discovery_telescope", tags=["charts"])
 async def get_planets_discovered_by_discovery_telescope_plotted_in_chart():
     """Get number of discovered planets by telescope plotted in a chart"""
     group_by_telescope = {
@@ -206,19 +206,26 @@ async def get_planets_discovered_by_discovery_telescope_plotted_in_chart():
         }
     }
 
-    mongo_data = list(planets_collection.aggregate([group_by_telescope]))
+    sort_by_telescope = {
+        "$sort": {"planets_discovered": pymongo.ASCENDING}
+    }
+
+    mongo_data = list(planets_collection.aggregate([group_by_telescope, sort_by_telescope]))
 
     data = pd.DataFrame(mongo_data)
     data.sort_values(by='_id', ascending=True)
-    data.plot.barh(x='_id', y='planets_discovered')
+    data.plot.barh(x='_id', y='planets_discovered', fontsize=6)
     plt.xscale('log')
-    plt.xlabel('Planets Discovered')
-    plt.ylabel('Discovery Telescope')
-    plt.title("Number of planets discovered by Telescope")
+    plt.ylabel('Discovery Telescope', fontsize=5)
+    plt.xlabel('Planets Discovered', fontsize=6)
+    plt.title("Number of planets discovered by discovery telescope", fontsize=6)
     ax = plt.gca()
+
     for axis in [ax.xaxis]:
         formatter = ScalarFormatter()
         formatter.set_scientific(False)
         axis.set_major_formatter(formatter)
-    plt.savefig('planets_by_year.png', bbox_inches="tight", dpi=200)
+
+    plt.tick_params(axis='y', which='major', labelsize=4)
+    plt.savefig('planets_by_year.png', bbox_inches="tight", dpi=400)
     return FileResponse('planets_by_year.png')
