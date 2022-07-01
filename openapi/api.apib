@@ -1,0 +1,186 @@
+FORMAT: A1
+
+# Nasa Exoplanet Archive
+
+API that retrieves, saves, displays and plots data from nasa's exoplanet archive.
+
+# Group Settings
+
+Settings to load data from Nasa's endpoint locally.
+
+## Settings [/sync-database]
+
+### Sync local database [GET]
+
+Sync local database with exo-planet archive database. Deletes the local collection and updates with new elements.
+Returns the number of elements saved.
+
++ Response 200 (application/json)
+    {
+        "code": 200,
+        "message": "Database successfully updated n elements",
+        "data": "",
+        "total_elements": n
+    }
+
++ Response 500 (application/json)
+    {
+        "code": 500,
+        "message": "An error occurred when updating database: ",
+        "data": "",
+        "total_elements": 0
+    }
+
+
+# Group Data
+
+Endpoints that display planets data of exoplanet archive database.
+
+## Planets [/planets]
+
+### Get Planets [GET]
+
+Get planets paginated with filters. If no filters is specified, returns all planets paginated.
+
++ Parameters
+    + planet_name: (string, optional) - Name of the planet
+    + discovery_method: (string, optional) - Method of the planet was discovered
+    + discovery_facility: (string, optional) - Facility where the planet was discovered
+    + discovery_year: (string, optional) - Year when the planet was discovered
+    + size: (integer) - How many elements to be returned
+    + page_num: (integer) - Number of the paginated page to be returned
+    + ordered: (string) - Order of the response
+
++ Response 200 (application/json)
+    {
+        "code": 200,
+        "message": "Planets successfully retrieved",
+        "data": [
+            {
+            "id": "62bf3df6feabb0c8319d0b57",
+            "planet_name": "TOI-2136 b",
+            "number_of_stars": 1,
+            "number_of_planets": 1,
+            "discovery_year": 2022,
+            "discovery_method": "Transit",
+            "discovery_facility": "Transiting Exoplanet Survey Satellite (TESS)",
+            "discovery_locale": "Space",
+            "discovery_telescope": "0.1 m TESS Telescope",
+            "orbital_period": 7.85191,
+            "planet_earth_radius": 2.09,
+            "planet_earth_mass": 15,
+            "link": "https://exoplanetarchive.ipac.caltech.edu/overview/TOI-2136 b"
+            },
+            {
+            "id": "62bf3df6feabb0c8319d0b24",
+            "planet_name": "HIP 94235 b",
+            "number_of_stars": 2,
+            "number_of_planets": 1,
+            "discovery_year": 2022,
+            "discovery_method": "Transit",
+            "discovery_facility": "Transiting Exoplanet Survey Satellite (TESS)",
+            "discovery_locale": "Space",
+            "discovery_telescope": "0.1 m TESS Telescope",
+            "orbital_period": 7.713057,
+            "planet_earth_radius": 3,
+            "planet_earth_mass": 379,
+            "link": "https://exoplanetarchive.ipac.caltech.edu/overview/HIP 94235 b"
+            }
+        ],
+        "total_elements": 32576
+    }
+
++ Response 500 (application/json)
+    {
+        "code": 500,
+        "message": "An error occurred while fetching data: ",
+        "data": "",
+        "total_elements": 0
+    }
+
+
+# Group Chart
+
+Endpoints that plot charts based on planet.
+
+## Discovery Year [/plot/planet/discovery-year]
+
+### Chart by discovery year [GET]
+
+Get chart with all planets plotted by discovered year.
+
++ Response 200 (image/jpeg)
+    
++ Response 500 (application/json)
+    {
+        "code": 500,
+        "message": "An error occurred while fetching data: ",
+        "data": "",
+        "total_elements": 0
+    }
+
+## Discovery Method [/plot/planet/discovery-method]
+
+### Chart by discovery method [GET]
+
+Get chart with all planets plotted by discovered method.
+
++ Response 200 (image/jpeg)
+    
++ Response 500 (application/json)
+    {
+        "code": 500,
+        "message": "An error occurred while fetching data: ",
+        "data": "",
+        "total_elements": 0
+    }
+
+
+## Discovery Facility [/plot/planet/discovery-facility]
+
+### Chart by discovery facility [GET]
+
+Get chart with all planets plotted by discovered facility.
+
++ Response 200 (image/jpeg)
+    
++ Response 500 (application/json)
+    {
+        "code": 500,
+        "message": "An error occurred while fetching data: ",
+        "data": "",
+        "total_elements": 0
+    }
+
+## Discovery Locale [/plot/planet/discovery-locale]
+
+### Chart by discovery locale [GET]
+
+Get chart with all planets plotted by discovered locale.
+
++ Response 200 (image/jpeg)
+    
++ Response 500 (application/json)
+    {
+        "code": 500,
+        "message": "An error occurred while fetching data: ",
+        "data": "",
+        "total_elements": 0
+    }
+
+
+## Discovery Telescope [/plot/planet/discovery-telescope]
+
+### Chart by discovery telescope [GET]
+
+Get chart with all planets plotted by discovered telescope.
+
++ Response 200 (image/jpeg)
+    
++ Response 500 (application/json)
+    {
+        "code": 500,
+        "message": "An error occurred while fetching data: ",
+        "data": "",
+        "total_elements": 0
+    }

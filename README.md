@@ -5,7 +5,7 @@ Project that gather and display data about NASA's exoplanets, [using NASA's data
 ---
 ## Dependencies
 
-Ensure that you have `python3 `and `pip` installed on your machine. Access the project's folder and run the following 
+Ensure that you have `python3` and `pip` installed on your machine. Access the project's folder and run the following 
 commands in order to install our used dependencies:
 
 ```
@@ -36,4 +36,4 @@ Now you're ready to go!
 
 ## Endpoints
 
-## Sources
+To check out endpoints documentation, [click here.](openapi/api.apib)
