@@ -1,6 +1,6 @@
 # Nasa Exoplanet Archive
 
-Project that gather and display data about NASA's exoplanets, [using NASA's datasource](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS).
+Project that gather and display data about NASA's exoplanets, [using NASA's datasource](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS). Check my blog post about the experience building this project [here!](https://gracieledamasceno.github.io/dev-on-track/technology/2022/07/23/nasa-exoplanet-archive.html)
 
 ---
 ## Dependencies
